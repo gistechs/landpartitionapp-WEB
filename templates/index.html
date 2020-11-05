@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>Home</title>
+{% endblock %}
+
+{% block main_div %}
+
+<!--Carousel slide-->
+<div id="slides" class="carousel slide" data-ride="carousel">
+    <ul class="carousel-indicators">
+        <li data-target="#slides" data-slide-to="0" class="active"></li>
+        <li data-target="#slides" data-slide-to="1"></li>
+    </ul>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="{{ url_for('static', filename='img/survey.jpg') }}">
+            <div class="carousel-caption">
+                <h1 class="display-2">Start Partitioning</h1>
+                <h3>Partitioning your lot parcel with our application.</h3>
+                <a href="/partition" class="btn btn-primary btn-lg">Get Started</a>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <img src="{{ url_for('static', filename='img/house.jpg') }}">
+            <div class="carousel-caption">
+                <h3>Learn more about the background of this web application and simple guilelines for using it.</h3>
+                <a href="/about" class="btn btn-primary btn-lg">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Welcome section-->
+<div class="container-fluid padding">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4">Partitioning with ease</h1>
+        </div>
+        <hr>
+        <div class="col-12">
+            <p class="lead">Welcome to my land partitioning web application!
+            </p>
+            <p class="lead">Plan your development with our partitioning layout for free and much easier
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

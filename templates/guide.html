@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>Guideline</title>
+{% endblock %}
+
+{% block main_div %}
+
+<div class="about-section paddingTB60 gray-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 col-sm-6">
+                <div class="about-title clearfix">
+                    <h1><span>How it works?</span></h1><br>
+                    <h3>1. Design Reserve Area</h3>
+                    <p>Design reserve area using external software platform such as Autocad and ArcGIS. Note: Please
+                        ensure the boundary of reserve area extend outside the lot parcel
+                    </p><br>
+                    <h3>2. Prepare Data</h3>
+                    <p>Prepare two important dataset; lot parcel and reserve area in shapefile format. 
+                        Compile the shapefile in zip files respectively. Refer to sample data provided below for more information</p><br>
+                    <h3>3. Define Coordinate</h3>
+                    <p>Select coordinate system based on the inputted file.</p><br>
+                    <h3>4. Upload Data and Choose Layout</h3>
+                    <p>Upload zip file and choose layout from dropdown menu. User can create new layout by navigate to
+                        create layout page. Click submit to show layout on the map.</p><br><br>
+                    <p class="text-right">Download <a href="{{ url_for('get_sample_pr') }}">lot parcel data</a></p>
+                    <p class="text-right">Download <a href="{{ url_for('get_sample_rs') }}">reserve area data</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

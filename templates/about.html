@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+<title>About</title>
+{% endblock %}
+
+{% block main_div %}
+
+<div class="about-section paddingTB60 gray-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 col-sm-6">
+                <div class="about-title clearfix">
+                    <h1>About <span>Land Partitioning</span></h1>
+                    <h3>Web Application</h3>
+                    <p class="about-paddingB">Land partitioning application is a semi-automated land partitioning
+                        application that uses vector data to generate layouts for lot parcel of any shape. Partitioning
+                        layouts generated from this application is not
+                        intended to replace layouts produced by a surveyor based on field measurements. This tool should
+                        instead be used for initial exploratory work prior to actual field survey. Here the how to get
+                        <a href="{{ url_for('guide') }}">started</a> and partitioning your lot parcel.</p>
+                    <p>Special thanks to everyone involved in the development process. Thank you for support and guidances.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

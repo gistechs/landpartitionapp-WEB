@@ -1,0 +1,12 @@
+click==7.1.2
+Flask==1.1.2
+geojson==2.5.0
+gunicorn==20.0.4
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+psycopg2==2.8.5
+pygeoif==0.7
+pyshp==2.1.0
+Shapely==1.7.0
+Werkzeug==1.0.1

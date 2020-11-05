@@ -1,0 +1,228 @@
+{% extends "layout.html" %}
+{% block title %}
+<title>Application</title>
+{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+<link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />
+<script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+{% endblock %}
+{% block main_div %}
+<div class="section pb-5">
+    <div class="row">
+        <!--Form column-->
+        <div class="col-lg-4 mb-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <form action="/form" class="form-horizontal pl-2" method="POST" enctype="multipart/form-data">
+                <!--Form with header-->
+                <div class="pb-1 pl-3">
+                    <small class="text-muted">
+                        How to get started? <a class="ml-1" href="{{ url_for('guide') }}">Click Here</a>
+                    </small>
+                </div>
+                <div class="card border-info rounded-0">
+                    <div class="card-header p-0">
+                        <div class="bg-info text-white text-center py-2">
+                            <h4><i class="fa"></i>Define Coordinate Sytem</h4>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="form-group pb-2">
+                            <label>Select Coordinate System</label>
+                            <select name="epsg" class="custom-select" required="required">
+                                <option value="" disabled selected>Choose EPSG</option>
+                                <option value="3375" name="epsg1">GDM2000 MRSO</option>
+                                <option value="3376" name="epsg2">GDM2000 BRSO</option>
+                                <option value="3377" name="epsg3">GDM2000 Cassini Johor</option>
+                                <option value="3168" name="epsg4">Kertau RSO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-header p-0">
+                        <div class="bg-info text-white text-center py-2">
+                            <h4><i class="fa"></i>Upload shapefile</h4>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="form-group pb-2">
+                            <label>Input lot parcel shapefile</label>
+                            <input type="file" name='file1' class="form-control-file">
+                        </div>
+                        <div class="form-group pb-2">
+                            <label>Input reserve area</label>
+                            <input type="file" name='file2' class="form-control-file">
+                        </div>
+                    </div>
+                    <div class="card-header p-0">
+                        <div class="bg-info text-white text-center py-2">
+                            <h4><i class="fa"></i>Layout selection</h4>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="form-group pb-3">
+                            <label>Layouts</label>
+                            <select name="layout" class="custom-select" required="required">
+                                <option value="" disabled selected>Choose your layout</option>
+                                {% for item in trys %}
+                                <option value="{{item.value}}" name="{{item.value}}">{{item.value}}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted float-right">
+                                Unsatisfied? <a href="{{ url_for('create_layout') }}">Create new layout</a>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <input type="submit" id="submit" class="btn btn-info btn-block rounded-0 py-2 submitText" />
+                    </div>
+                </div>
+                <!--Form with header-->
+            </form>
+            <!--Forum column-->
+        </div>
+
+        <!--Map column-->
+        <div class="col-lg-8">
+            <div class="container-fluid clear">
+                <div id="mapid"></div>
+            </div>
+        </div>
+
+        <!--Grid column-->
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    var pois = new L.featureGroup();
+
+    var mbOutdoor = L.tileLayer(
+        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+        {
+            attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 25,
+            id: "mapbox/satellite-v9",
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken:
+                "pk.eyJ1IjoiYXpydWxnaXMiLCJhIjoiY2thMGprdWh3MThtejNscXV2em05bndpdCJ9.iWev6R5GitkjvNIUg7oeJw",
+        }
+    )
+
+    var mymap = L.map("mapid", {
+        center: [3.963587, 101.798400],
+        zoom: 7,
+        minZoom: 2,
+        layers: [mbOutdoor, pois]
+    });
+
+    var options = {
+        position: 'topleft',            // Position to show the control. Values: 'topright', 'topleft', 'bottomright', 'bottomleft'
+        unit: 'landmiles',                 // Show imperial or metric distances. Values: 'metres', 'landmiles', 'nauticalmiles'
+        clearMeasurementsOnStop: false,  // Clear all the measurements when the control is unselected
+        showBearings: false,            // Whether bearings are displayed within the tooltips
+        bearingTextIn: 'In',            // language dependend label for inbound bearings
+        bearingTextOut: 'Out',          // language dependend label for outbound bearings
+        tooltipTextFinish: 'Click to <b>finish line</b><br>',
+        tooltipTextDelete: 'Press SHIFT-key and click to <b>delete point</b>',
+        tooltipTextMove: 'Click and drag to <b>move point</b><br>',
+        tooltipTextResume: '<br>Press CTRL-key and click to <b>resume line</b>',
+        tooltipTextAdd: 'Press CTRL-key and click to <b>add point</b>',
+        // language dependend labels for point's tooltips
+        measureControlTitleOn: 'Turn on PolylineMeasure',   // Title for the control going to be switched on
+        measureControlTitleOff: 'Turn off PolylineMeasure', // Title for the control going to be switched off
+        measureControlLabel: '&#8614;', // Label of the Measure control (maybe a unicode symbol)
+        measureControlClasses: [],      // Classes to apply to the Measure control
+        showClearControl: true,        // Show a control to clear all the measurements
+        clearControlTitle: 'Clear Measurements', // Title text to show on the clear measurements control button
+        clearControlLabel: '&times',    // Label of the Clear control (maybe a unicode symbol)
+        clearControlClasses: [],        // Classes to apply to clear control button
+        showUnitControl: false,         // Show a control to change the units of measurements
+        distanceShowSameUnit: false,    // Keep same unit in tooltips in case of distance less then 1 km/mi/nm
+        unitControlTitle: {             // Title texts to show on the Unit Control button
+            text: 'Change Units',
+            metres: 'metres',
+            landmiles: 'land miles',
+            nauticalmiles: 'nautical miles'
+        },
+        unitControlLabel: {             // Unit symbols to show in the Unit Control button and measurement labels
+            metres: 'm',
+            kilometres: 'km',
+            feet: 'ft',
+            landmiles: 'mi',
+            nauticalmiles: 'nm'
+        },
+        tempLine: {                     // Styling settings for the temporary dashed line
+            color: '#00f',              // Dashed line color
+            weight: 2                   // Dashed line weight
+        },
+        fixedLine: {                    // Styling for the solid line
+            color: '#006',              // Solid line color
+            weight: 2                   // Solid line weight
+        },
+        startCircle: {                  // Style settings for circle marker indicating the starting point of the polyline
+            color: '#000',              // Color of the border of the circle
+            weight: 1,                  // Weight of the circle
+            fillColor: '#0f0',          // Fill color of the circle
+            fillOpacity: 1,             // Fill opacity of the circle
+            radius: 3                   // Radius of the circle
+        },
+        intermedCircle: {               // Style settings for all circle markers between startCircle and endCircle
+            color: '#000',              // Color of the border of the circle
+            weight: 1,                  // Weight of the circle
+            fillColor: '#ff0',          // Fill color of the circle
+            fillOpacity: 1,             // Fill opacity of the circle
+            radius: 3                   // Radius of the circle
+        },
+        currentCircle: {                // Style settings for circle marker indicating the latest point of the polyline during drawing a line
+            color: '#000',              // Color of the border of the circle
+            weight: 1,                  // Weight of the circle
+            fillColor: '#f0f',          // Fill color of the circle
+            fillOpacity: 1,             // Fill opacity of the circle
+            radius: 3                   // Radius of the circle
+        },
+        endCircle: {                    // Style settings for circle marker indicating the last point of the polyline
+            color: '#000',              // Color of the border of the circle
+            weight: 1,                  // Weight of the circle
+            fillColor: '#f00',          // Fill color of the circle
+            fillOpacity: 1,             // Fill opacity of the circle
+            radius: 3                   // Radius of the circle
+        },
+    };
+
+    L.control.polylineMeasure(options).addTo(mymap);
+
+    L.easyButton('fa-download', function (btn) {
+        window.location = "{{url_for('get_output')}}"
+    }).addTo(mymap);
+
+    json_file = '{{disp_json|safe}}'
+
+    if (json_file) {
+        var geojsonFeature = JSON.parse(json_file);
+
+        L.geoJSON(geojsonFeature).addTo(pois);
+
+        var bounds = pois.getBounds();
+
+        mymap.fitBounds(bounds);
+    }
+
+</script>
+{% endblock %}
